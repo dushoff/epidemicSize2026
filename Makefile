@@ -6,9 +6,15 @@ current: target
 Ignore = target.mk
 
 vim_session:
-	bash -ic "vmt"
+	bash -ic "vmt README.md"
 
 ## -include makestuff/perl.def
+
+######################################################################
+
+Sources += $(wildcard *.md)
+
+group: dagmaros27.invite Vhugala-Ramabaga.invite longachanda.invite nkgomelengl.invite judeyatuwa.invite
 
 ######################################################################
 
