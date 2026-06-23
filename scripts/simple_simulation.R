@@ -1,3 +1,7 @@
+
+# please include notes about each step here please for that we can all understand your code
+
+
 library(deSolve)
 
 
