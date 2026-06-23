@@ -18,6 +18,13 @@ group: dagmaros27.invite Vhugala-Ramabaga.invite longachanda.invite nkgomelengl.
 
 ######################################################################
 
+autopipeR = defined
+
+Sources += $(wildcard scripts/*.R)
+## scripts/simple_simulation.Rout: scripts/simple_simulation.R
+
+######################################################################
+
 ### Makestuff
 
 Sources += Makefile
@@ -36,7 +43,7 @@ makestuff:
 
 -include makestuff/os.mk
 
-## -include makestuff/pipeR.mk
+-include makestuff/pipeR.mk
 
 -include makestuff/git.mk
 -include makestuff/visual.mk

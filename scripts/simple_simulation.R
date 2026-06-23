@@ -126,7 +126,8 @@ head(param_grid)
 
 
 ggplot(param_grid, aes(x = R0, y = epidemic_size)) +
-  geom_point(aes(color = factor(gamma)), size = 3) +
+  geom_point(aes(color = factor(gamma)), alpha=0.3, size = 3) +
+  geom_line(aes(color = factor(gamma))) +
   labs(title = "Epidemic size vs R0",
        x = "R0 (= beta/gamma)", 
        y = "Epidemic size (out of N=100)",

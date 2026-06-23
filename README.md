@@ -9,3 +9,14 @@ Most of the work should be [in our Google folder](https://drive.google.com/drive
 Add a file named after yourself in some way (.md is recommended) and say something. If possible, it should be something interesting.
 
 Also, check out [the Google folder](https://drive.google.com/drive/folders/19bmGNBypRwcHFmsMblIjAIS7L2iU8rs0) and add something there.
+
+## Notes
+
+Right now we are focused on IFR and counting deaths only
+
+If we want to later think about illness we also need to think about CFR and ICR.
+* Possibly think about adding a box (A) for sub-clinically infected people?
+
+What's the formula here?
+
+
