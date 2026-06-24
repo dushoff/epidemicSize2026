@@ -21,8 +21,7 @@ group: dagmaros27.invite Vhugala-Ramabaga.invite longachanda.invite nkgomelengl.
 autopipeR = defined
 
 Sources += $(wildcard scripts/*.R)
-scripts/SIRD_model.Rout: scripts/SIRD_model.R
-	$(rThere)
+## scripts/SIRD_model.Rout: scripts/SIRD_model.R
 
 scripts/dataPlot.Rout: scripts/dataPlot.R
 	$(rThere)
@@ -47,6 +46,7 @@ makestuff:
 
 -include makestuff/os.mk
 
+-include makestuff/pipeR.mk
 -include makestuff/simpleR.mk
 
 -include makestuff/git.mk
