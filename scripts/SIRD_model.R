@@ -2,6 +2,7 @@
 library(deSolve)
 library(ggplot2)
 library(tidyr)
+library(dplyr)
 
 # ============================================================================
 # SIRD MODEL: S → I_s (symptomatic) and I_a (asymptomatic) → R, D
@@ -12,11 +13,12 @@ sird_model <- function(time, state, parameters) {
     
     # Total infected (both transmit)
     I_total <- I_s + I_a
+	 trans <-  beta * S * I_total / N
     
     # Five differential equations
-    dS  <- -beta * S * I_total / N
-    dI_s <- p_sym * beta * S * I_total / N - gamma * I_s
-    dI_a <- (1 - p_sym) * beta * S * I_total / N - gamma * I_a
+    dS  <- -trans
+    dI_s <- p_sym * trans - gamma * I_s
+    dI_a <- (1 - p_sym) * trans - gamma * I_a
     dR  <- (1 - alpha) * gamma * I_s + gamma * I_a
     dD  <- alpha * gamma * I_s
     
@@ -29,7 +31,7 @@ sird_model <- function(time, state, parameters) {
 # PARAMETERS
 # ============================================================================
 
-N <- 100
+N <- 1e4
 p_sym <- 0.6
 parameters <- c(beta = 0.4,
                 gamma = 0.2,
@@ -38,11 +40,11 @@ parameters <- c(beta = 0.4,
                 N = N)
 
 # Initial conditions
-I0 <- 0.1 * N
+I0 <- 1e-4 * N
 I_s0 <- p_sym * I0
 I_a0 <- (1 - p_sym) * I0
 
-initial_state <- c(S = 90, I_s = I_s0, I_a = I_a0, R = 0, D = 0)
+initial_state <- c(S = N-I0, I_s = I_s0, I_a = I_a0, R = 0, D = 0)
 
 # Time points
 times <- seq(0, 100, by = 1)
@@ -54,7 +56,10 @@ output <- ode(y = initial_state,
               parms = parameters,
               method = "lsoda")
 
-output <- as.data.frame(output)
+output <- (as.data.frame(output)
+	## |> mutate (make it beautiful!)
+	## this one seems fine, maybe mutate output_long
+)
 
 head(output)
 
@@ -63,21 +68,27 @@ head(output)
 # PLOTTING
 # ============================================================================
 
+palette <- c(S = "#3B8BD4", I_s = "#E85A30", I_a = "#0F6E56", 
+                                R = "#639922", D = "#A32D2D")
+
 output_long <- pivot_longer(output, 
                             cols = c(S, I_s, I_a, R, D), 
                             names_to = "compartment", 
                             values_to = "count")
 
-ggplot(output_long, aes(x = time, y = count, color = compartment)) +
+
+sirdPlot <- ggplot(output_long, aes(x = time, y = count, color = compartment)) +
   geom_line(linewidth = 1) +
   labs(title = "SIRD Model: S → I_s, I_a → R, D",
+       ## Do not hard code!! 🙂
        subtitle = "beta=0.4, gamma=0.2, alpha=0.05, p_sym=0.6, N=100",
        x = "Time (days)", 
        y = "Number of people") +
   theme_minimal() +
-  scale_color_manual(values = c(S = "#3B8BD4", I_s = "#E85A30", I_a = "#0F6E56", 
-                                R = "#639922", D = "#A32D2D"))
+  scale_color_manual(values = palette)
 
+print(sirdPlot)
+print(sirdPlot + output_long|> filter(time>2) + scale_y_log10())
 
 # ============================================================================
 # FINAL OUTCOMES
@@ -100,6 +111,7 @@ print(paste("Attack Rate:", round(attack_rate, 1), "%"))
 # FUNCTION: Get epidemic outcomes
 # ============================================================================
 
+## How do we know we're running long enough?
 get_epidemic_size <- function(beta, gamma, alpha, p_sym, N, I0, t_max = 100) {
   
   parameters <- c(beta = beta, gamma = gamma, alpha = alpha, p_sym = p_sym, N = N)

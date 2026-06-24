@@ -19,4 +19,3 @@ If we want to later think about illness we also need to think about CFR and ICR.
 
 What's the formula here?
 
-

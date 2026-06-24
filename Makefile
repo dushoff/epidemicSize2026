@@ -6,7 +6,7 @@ current: target
 Ignore = target.mk
 
 vim_session:
-	bash -ic "vmt README.md"
+	bash -ic "vmt README.md TODO.md"
 
 ## -include makestuff/perl.def
 
@@ -22,6 +22,7 @@ autopipeR = defined
 
 Sources += $(wildcard scripts/*.R)
 ## scripts/simple_simulation.Rout: scripts/simple_simulation.R
+## scripts/SIRD_model.Rout: scripts/SIRD_model.R
 
 ######################################################################
 
