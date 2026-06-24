@@ -5,7 +5,7 @@ library(ggplot2)
 
 # Import Data set
 
-dta <- read_csv("C:/Users/ZNPHI/OneDrive/PHD/MMED/Github/drc_sitrep.csv")
+dta <- read_csv("../data/drc_sitrep.csv")
 
 # Plot by data type
 
