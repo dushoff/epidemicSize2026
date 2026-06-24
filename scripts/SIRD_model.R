@@ -56,10 +56,10 @@ output <- ode(y = initial_state,
               parms = parameters,
               method = "lsoda")
 
-output <- (as.data.frame(output)
-	## |> mutate (make it beautiful!)
-	## this one seems fine, maybe mutate output_long
-)
+output <- (as.data.frame(output))
+
+
+----------------------------------------------------------------------
 
 head(output)
 
@@ -76,10 +76,19 @@ output_long <- pivot_longer(output,
                             names_to = "compartment", 
                             values_to = "count")
 
+output_long <- (output_long
+	|> mutate(
+		compartment = factor(compartment, levels=(
+			c("S", "I_s", "I_a", "R", "D")
+		))
+	)
+)
+
+head(output_long)
 
 sirdPlot <- ggplot(output_long, aes(x = time, y = count, color = compartment)) +
   geom_line(linewidth = 1) +
-  labs(title = "SIRD Model: S → I_s, I_a → R, D",
+  labs(title = "SIRD Model: S => I_s, I_a => R, D",
        ## Do not hard code!! 🙂
        subtitle = "beta=0.4, gamma=0.2, alpha=0.05, p_sym=0.6, N=100",
        x = "Time (days)", 

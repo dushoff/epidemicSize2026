@@ -9,8 +9,9 @@ dta <- read_csv("../data/drc_sitrep.csv")
 
 # Plot by data type
 
+## Consider using pivot_longer and then use one geom per logical item
+
 dta_plot <- ggplot(dta, aes(x = date)) +
-  
 
   # Suspect cases
   geom_line(
@@ -30,7 +31,7 @@ dta_plot <- ggplot(dta, aes(x = date)) +
   geom_line(
     aes(y = confirmed_cases, colour = "Confirmed Cases"),
     linewidth = 1.1,
-    linetype = "dashed",
+    ## linetype = "dashed",
     na.rm = TRUE
   ) +
   
@@ -38,7 +39,7 @@ dta_plot <- ggplot(dta, aes(x = date)) +
   geom_line(
     aes(y = confirmed_death, colour = "Confirmed Deaths"),
     linewidth = 1.1,
-    linetype = "dashed",
+    ## linetype = "dashed",
     na.rm = TRUE
   ) +
   
@@ -67,6 +68,6 @@ dta_plot <- ggplot(dta, aes(x = date)) +
     legend.position = "bottom"
   )
 
+print(dta_plot)
 
-#
-dta_plot
+print(dta_plot + scale_y_log10())

@@ -16,7 +16,8 @@ Compare incidence curves or rate of early growth
 Check finishing:
 * e.g., give a warning if I_final/N > thresh
 
-Put the levels of SIRD in a sensible order
-* compartment = factor(compartment, levels=c("S", "I_a" …
-* You can also try the direct labels package
+The direct labels package?
 
+For the data plots: try to make them more user-friendly. We should be able to see quickly that confirmed goes with confirmed, death with death etc. This is an interesting aesthetic question. Maybe make a long data frame? If so, maybe make separate columns for these aesthetics (e.g., surveillanceType, eventType).
+
+Estimate initial value of r0 from the data? One suggestion from lecture would be to use a glm.nb in R.
