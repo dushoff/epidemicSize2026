@@ -1,7 +1,9 @@
 library(readr)
 library(tidyr)
 library(dplyr)
-library(ggplot2)
+## maybe base_size=18 for slides?
+library(ggplot2); theme_set(theme_minimal(base_size=14))
+pdf(width=10)
 
 dta <- read_csv("../data/drc_sitrep.csv")
 
@@ -17,6 +19,15 @@ dta_long <- dta |>
   )
 
 head(dta_long)
+
+sim_plot <- (ggplot(dta_long)
+	+ aes(date, count, color=eventType, linetype=surveillanceType)
+	+ geom_line()
+)
+
+print(sim_plot)
+print(sim_plot+scale_y_log10())
+print(sim_plot+scale_y_log10() + dta_long |> filter(surveillanceType=="Confirmed"))
 
 dta_plot <- ggplot(dta_long, aes(x = date, y = count, 
                                  color = surveillanceType, 

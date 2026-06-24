@@ -1,6 +1,6 @@
 
 library(deSolve)
-library(ggplot2)
+library(ggplot2); theme_set(theme_minimal())
 library(tidyr)
 library(dplyr)
 
@@ -116,10 +116,10 @@ ggplot(output,
 ggplot(output |> filter(time <= 20, incidence > 0),
        aes(x = time, y = incidence, color=incidence)) +
   geom_line(linewidth = 1) +
+  scale_y_log10() +
   labs(title = "Early incidence growth",
        x = "Time (days)",
-       y = "New infections per day") +
-  theme_minimal()
+       y = "New infections per day")
 
 # ============================================================================
 # FINAL OUTCOMES
