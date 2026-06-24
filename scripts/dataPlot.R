@@ -1,73 +1,67 @@
-
-# Load Library
 library(readr)
+library(tidyr)
+library(dplyr)
 library(ggplot2)
-
-# Import Data set
 
 dta <- read_csv("../data/drc_sitrep.csv")
 
-# Plot by data type
+dta_long <- dta |>
+  pivot_longer(
+    cols = c(suspect_cases, suspect_death, confirmed_cases, confirmed_death),
+    names_to = "series",
+    values_to = "count"
+  ) |>
+  mutate(
+    surveillanceType = if_else(grepl("^suspect", series), "Suspect", "Confirmed"),
+    eventType = if_else(grepl("cases$", series), "Cases", "Deaths")
+  )
 
-## Consider using pivot_longer and then use one geom per logical item
+head(dta_long)
 
-dta_plot <- ggplot(dta, aes(x = date)) +
-
-  # Suspect cases
-  geom_line(
-    aes(y = suspect_cases, colour = "Suspect Cases"),
-    linewidth = 1.1,
-    na.rm = TRUE
-  ) +
-  
-  # Suspect death
-  geom_line(
-    aes(y = suspect_death, colour = "Suspect Deaths"),
-    linewidth = 1.1,
-    na.rm = TRUE
-  ) +
-  
-  # Confirmed Cases
-  geom_line(
-    aes(y = confirmed_cases, colour = "Confirmed Cases"),
-    linewidth = 1.1,
-    ## linetype = "dashed",
-    na.rm = TRUE
-  ) +
-  
-  # Confirmed Deaths
-  geom_line(
-    aes(y = confirmed_death, colour = "Confirmed Deaths"),
-    linewidth = 1.1,
-    ## linetype = "dashed",
-    na.rm = TRUE
-  ) +
-  
-  scale_colour_manual(
-    values = c(
-      "Suspect Cases" = "blue",
-      "Suspect Deaths" = "darkblue",
-      "Confirmed Cases" = "pink",
-      "Confirmed Deaths" = "red"
-    )
-  ) +
-  
+dta_plot <- ggplot(dta_long, aes(x = date, y = count, 
+                                 color = surveillanceType, 
+                                 linetype = eventType)) +
+  geom_line(linewidth = 1.1, na.rm = TRUE) +
+  scale_color_manual(values = c("Suspect" = "#E68A00", "Confirmed" = "#2C5F8A")) +
   labs(
-    title = "Plot of Suspected and Confirmed Ebola Deaths and Cases",
-    subtitle = "",
-    x = "Date",
-    y = "Number of cases and Deaths",
-    colour = NULL
+    title = "Suspected and Confirmed Ebola Cases and Deaths",
+    x = "Date", y = "Number of cases / deaths",
+    color = "Surveillance type", linetype = "Event type"
   ) +
-  
   theme_minimal(base_size = 13) +
   theme(
     plot.title = element_text(face = "bold"),
-    axis.title.y = element_text(colour = "steelblue"),
-    axis.title.y.right = element_text(colour = "darkred"),
     legend.position = "bottom"
   )
 
 print(dta_plot)
-
 print(dta_plot + scale_y_log10())
+
+
+
+fig1 <- ggplot(dta_long, aes(x = date, y = count, color = eventType)) +
+  geom_line(linewidth = 1.1, na.rm = TRUE) +
+  scale_color_manual(values = c("Cases" = "#2C5F8A", "Deaths" = "#B23A48")) +
+  facet_wrap(~ surveillanceType, ncol = 1, scales = "free_y") +
+  labs(
+    title = "Ebola Cases and Deaths, by Surveillance Type",
+    x = "Date", y = "Count", color = "Event type"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(plot.title = element_text(face = "bold"), legend.position = "bottom")
+
+print(fig1)
+
+
+fig2 <- ggplot(dta_long, aes(x = date, y = count, color = surveillanceType)) +
+  geom_line(linewidth = 1.1, na.rm = TRUE) +
+  scale_color_manual(values = c("Suspect" = "#E68A00", "Confirmed" = "#2C5F8A")) +
+  facet_wrap(~ eventType, ncol = 1, scales = "free_y") +
+  labs(
+    title = "Ebola Suspect vs Confirmed, by Event Type",
+    x = "Date", y = "Count", color = "Surveillance type"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(plot.title = element_text(face = "bold"), legend.position = "bottom")
+
+print(fig2)
