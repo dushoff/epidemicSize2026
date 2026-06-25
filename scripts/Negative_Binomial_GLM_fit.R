@@ -3,18 +3,20 @@
 #see what we have 
 #and what we do not have
 
-
-
 #install.packages("MASS")
-
 
 library(MASS)
 library(ggplot2)
 library(gridExtra)
 
 # Read data
-setwd("C:/Users/nkgomelengl/Desktop/MMEDgit/epidemicSize2026/data")
-data <- read.csv("drc_sitrep.csv")
+
+## OK
+## setwd("../data")
+
+## Better
+data <- read.csv("../data/drc_sitrep.csv")
+
 data$date <- as.Date(data$date)
 data$day <- as.numeric(data$date - data$date[1])
 
@@ -31,6 +33,14 @@ doubling <- log(2) / small_r
 # Get confidence intervals
 CI <- confint(glm_fit)
 r_CI <- CI[2, ]
+
+## Our actual result is CI for r; let's plot that first
+
+## Calculate R is a good idea but a little bit complicated
+## You are showing CI but you are not reflecting uncertainty in SI
+## This calculation is sensitive to a distribution assumption
+## You can generalize this if you estimate the variation in SI
+## To get CIs, you would then want uncertainty in variation
 R0_lower <- exp(r_CI[1] * SI)
 R0_upper <- exp(r_CI[2] * SI)
 
@@ -48,87 +58,87 @@ newdata <- data.frame(day = seq(min(data$day), max(data$day), by = 0.5))
 pred <- predict(glm_fit, newdata = newdata, type = "response", se.fit = TRUE)
 
 pred_df <- data.frame(
-  day = newdata$day,
-  fit = pred$fit,
-  se = pred$se.fit
+day = newdata$day,
+fit = pred$fit,
+se = pred$se.fit
 )
 
 # ==== FIGURE 1: GLM FIT ====
 fig1 <- ggplot(data, aes(x = day, y = confirmed_cases)) +
-  geom_point(color = "darkred", size = 3, alpha = 0.7) +
-  geom_line(data = pred_df, aes(y = fit), color = "blue", size = 1.2) +
-  geom_ribbon(data = pred_df, 
-              aes(y = fit, 
-                  ymin = fit - 1.96*se, 
-                  ymax = fit + 1.96*se),
-              alpha = 0.2, fill = "blue") +
-  labs(title = "Negative Binomial GLM Fit",
-       subtitle = paste("r =", round(small_r, 4), "/day, Doubling time =", round(doubling, 2), "days"),
-       x = "Days since first case",
-       y = "Confirmed Cases") +
-  theme_minimal() +
-  theme(plot.title = element_text(face = "bold", size = 12))
+geom_point(color = "darkred", size = 3, alpha = 0.7) +
+geom_line(data = pred_df, aes(y = fit), color = "blue", size = 1.2) +
+geom_ribbon(data = pred_df, 
+aes(y = fit, 
+ymin = fit - 1.96*se, 
+ymax = fit + 1.96*se),
+alpha = 0.2, fill = "blue") +
+labs(title = "Negative Binomial GLM Fit",
+subtitle = paste("r =", round(small_r, 4), "/day, Doubling time =", round(doubling, 2), "days"),
+x = "Days since first case",
+y = "Confirmed Cases") +
+theme_minimal() +
+theme(plot.title = element_text(face = "bold", size = 12))
 
 # ==== FIGURE 2: LOG SCALE (EXPONENTIAL GROWTH) ====
 fig2 <- ggplot(data, aes(x = day, y = confirmed_cases)) +
-  geom_point(color = "darkred", size = 3, alpha = 0.7) +
-  geom_line(data = pred_df, aes(y = fit), color = "blue", size = 1.2) +
-  geom_ribbon(data = pred_df, 
-              aes(y = fit, 
-                  ymin = fit - 1.96*se, 
-                  ymax = fit + 1.96*se),
-              alpha = 0.2, fill = "blue") +
-  scale_y_log10() +
-  labs(title = "Exponential Growth (Log Scale)",
-       subtitle = paste("Linear trend on log scale shows exponential growth"),
-       x = "Days since first case",
-       y = "Confirmed Cases (log10)") +
-  theme_minimal() +
-  theme(plot.title = element_text(face = "bold", size = 12))
+geom_point(color = "darkred", size = 3, alpha = 0.7) +
+geom_line(data = pred_df, aes(y = fit), color = "blue", size = 1.2) +
+geom_ribbon(data = pred_df, 
+aes(y = fit, 
+ymin = fit - 1.96*se, 
+ymax = fit + 1.96*se),
+alpha = 0.2, fill = "blue") +
+scale_y_log10() +
+labs(title = "Exponential Growth (Log Scale)",
+subtitle = paste("Linear trend on log scale shows exponential growth"),
+x = "Days since first case",
+y = "Confirmed Cases (log10)") +
+theme_minimal() +
+theme(plot.title = element_text(face = "bold", size = 12))
 
 # ==== FIGURE 3: GROWTH RATE VISUALIZATION ====
 growth_data <- data.frame(
-  day = pred_df$day,
-  growth_rate = small_r,
-  doubling_time = doubling
+day = pred_df$day,
+growth_rate = small_r,
+doubling_time = doubling
 )
 
 fig3 <- ggplot(growth_data, aes(x = day, y = growth_rate)) +
-  geom_hline(yintercept = small_r, color = "green", size = 1.2, linetype = "solid") +
-  annotate("text", x = max(growth_data$day) * 0.5, y = small_r + 0.01,
-           label = paste("r =", round(small_r, 4), "/day"),
-           size = 4, color = "green") +
-  ylim(0, small_r * 2) +
-  labs(title = "Growth Rate (r) Over Time",
-       subtitle = paste("Doubling every", round(doubling, 2), "days"),
-       x = "Days since first case",
-       y = "Growth Rate per day") +
-  theme_minimal() +
-  theme(plot.title = element_text(face = "bold", size = 12))
+geom_hline(yintercept = small_r, color = "green", size = 1.2, linetype = "solid") +
+annotate("text", x = max(growth_data$day) * 0.5, y = small_r + 0.01,
+label = paste("r =", round(small_r, 4), "/day"),
+size = 4, color = "green") +
+ylim(0, small_r * 2) +
+labs(title = "Growth Rate (r) Over Time",
+subtitle = paste("Doubling every", round(doubling, 2), "days"),
+x = "Days since first case",
+y = "Growth Rate per day") +
+theme_minimal() +
+theme(plot.title = element_text(face = "bold", size = 12))
 
 # ==== FIGURE 4: R0 VISUALIZATION ====
 fig4 <- ggplot(data.frame(x = c(-1, 1)), aes(x)) +
-  geom_segment(aes(x = -0.5, xend = 0.5, y = big_R, yend = big_R),
-               size = 2, color = "darkblue") +
-  geom_segment(aes(x = -0.5, xend = 0.5, y = R0_lower, yend = R0_lower),
-               size = 1, color = "lightblue", linetype = "dashed") +
-  geom_segment(aes(x = -0.5, xend = 0.5, y = R0_upper, yend = R0_upper),
-               size = 1, color = "lightblue", linetype = "dashed") +
-  geom_hline(yintercept = 1, color = "red", size = 1.2, linetype = "dotted") +
-  annotate("text", x = 0.6, y = big_R, 
-           label = paste("R0 =", round(big_R, 3)),
-           size = 5, color = "darkblue", fontface = "bold") +
-  annotate("text", x = 0.6, y = 1, 
-           label = "Critical threshold",
-           size = 4, color = "red") +
-  ylim(0, max(big_R * 1.5, 3)) +
-  xlim(-1, 1.5) +
-  labs(title = "Basic Reproduction Number (R0)",
-       subtitle = paste("95% CI: [", round(R0_lower, 3), ", ", round(R0_upper, 3), "]"),
-       y = "R0") +
-  theme_minimal() +
-  theme(plot.title = element_text(face = "bold", size = 12),
-        axis.text.x = element_blank())
+geom_segment(aes(x = -0.5, xend = 0.5, y = big_R, yend = big_R),
+size = 2, color = "darkblue") +
+geom_segment(aes(x = -0.5, xend = 0.5, y = R0_lower, yend = R0_lower),
+size = 1, color = "lightblue", linetype = "dashed") +
+geom_segment(aes(x = -0.5, xend = 0.5, y = R0_upper, yend = R0_upper),
+size = 1, color = "lightblue", linetype = "dashed") +
+geom_hline(yintercept = 1, color = "red", size = 1.2, linetype = "dotted") +
+annotate("text", x = 0.6, y = big_R, 
+label = paste("R0 =", round(big_R, 3)),
+size = 5, color = "darkblue", fontface = "bold") +
+annotate("text", x = 0.6, y = 1, 
+label = "Critical threshold",
+size = 4, color = "red") +
+ylim(0, max(big_R * 1.5, 3)) +
+xlim(-1, 1.5) +
+labs(title = "Basic Reproduction Number (R0)",
+subtitle = paste("95% CI: [", round(R0_lower, 3), ", ", round(R0_upper, 3), "]"),
+y = "R0") +
+theme_minimal() +
+theme(plot.title = element_text(face = "bold", size = 12),
+axis.text.x = element_blank())
 
 # ==== DISPLAY ALL FIGURES ====
 grid.arrange(fig1, fig2, fig3, fig4, nrow = 2, ncol = 2)
