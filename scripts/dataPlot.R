@@ -25,6 +25,49 @@ sim_plot <- (ggplot(dta_long)
 	+ geom_line()
 )
 
+<<<<<<< HEAD
+  # Suspect cases
+  geom_line(
+    aes(y = suspect_cases, colour = "Suspect Cases"),
+    linewidth = 1.1,
+    linetype = "dashed",
+    na.rm = TRUE
+  ) +
+  
+  # Suspect death
+  geom_line(
+    aes(y = suspect_death, colour = "Suspect Deaths"),
+    linetype = "dashed",
+    linewidth = 1.1,
+    na.rm = TRUE
+  ) +
+  
+  # Confirmed Cases
+  geom_line(
+    aes(y = confirmed_cases, colour = "Confirmed Cases"),
+    linewidth = 1.1,
+    ## linetype = "dashed",
+    na.rm = TRUE
+  ) +
+  
+  # Confirmed Deaths
+  geom_line(
+    aes(y = confirmed_death, colour = "Confirmed Deaths"),
+    linewidth = 1.1,
+    ## linetype = "dashed",
+    na.rm = TRUE
+  ) +
+  
+  scale_colour_manual(
+    values = c(
+      "Suspect Cases" = "blue",
+      "Suspect Deaths" = "pink",
+      "Confirmed Cases" = "blue",
+      "Confirmed Deaths" = "pink"
+    )
+  ) +
+  
+=======
 print(sim_plot)
 print(sim_plot+scale_y_log10())
 print(sim_plot+scale_y_log10() + dta_long |> filter(surveillanceType=="Confirmed"))
@@ -34,6 +77,7 @@ dta_plot <- ggplot(dta_long, aes(x = date, y = count,
                                  linetype = eventType)) +
   geom_line(linewidth = 1.1, na.rm = TRUE) +
   scale_color_manual(values = c("Suspect" = "#E68A00", "Confirmed" = "#2C5F8A")) +
+>>>>>>> 338563fce2535ce86cf75a9e82aefff2bb04c73e
   labs(
     title = "Suspected and Confirmed Ebola Cases and Deaths",
     x = "Date", y = "Number of cases / deaths",
