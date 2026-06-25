@@ -26,6 +26,9 @@ Sources += $(wildcard scripts/*.R)
 scripts/dataPlot.Rout: scripts/dataPlot.R
 	$(rThere)
 
+scripts/Negative_Binomial_GLM_fit.Rout: scripts/Negative_Binomial_GLM_fit.R
+	$(rThere)
+
 ######################################################################
 
 ### Makestuff
