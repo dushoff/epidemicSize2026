@@ -1,8 +1,19 @@
-
 library(deSolve)
-library(ggplot2); theme_set(theme_minimal())
+library(ggplot2)
 library(tidyr)
 library(dplyr)
+
+PLOT_MODE <- "report"  # "report" or "slides"
+
+BASE_SIZE <- switch(
+  PLOT_MODE,
+  report = 14,
+  slides = 18
+)
+
+theme_set(
+  theme_minimal(base_size = BASE_SIZE)
+)
 
 # ============================================================================
 # SIRD MODEL: S → I_s (symptomatic) and I_a (asymptomatic) → R, D
@@ -96,25 +107,23 @@ sirdPlot_log <- ggplot(output_long %>% filter(time > 2),
          "beta=%.2f, gamma=%.2f, alpha=%.2f, p_sym=%.2f, N=%d",
          parameters["beta"], parameters["gamma"], parameters["alpha"],
          parameters["p_sym"], parameters["N"]),
-       x = "Time (days)", y = "Number of people") +
-  theme_minimal()
+       x = "Time (days)", y = "Number of people")
 
 
 print(sirdPlot_log)
 
 ggplot(output,
-       aes(x = time, y = incidence, color=incidence)) +
+       aes(x = time, y = incidence)) +
   geom_line(linewidth = 1) +
   labs(title = "Incidence over time",
        subtitle = "Incidence = rate of new infections (beta * S * I_total / N)",
        x = "Time (days)",
-       y = "New infections per day") +
-  theme_minimal()
+       y = "New infections per day")
 
 # Early-growth view: restricted to the early period where the 
 # exponential approximation holds (before susceptible depletion kicks in)
 ggplot(output |> filter(time <= 20, incidence > 0),
-       aes(x = time, y = incidence, color=incidence)) +
+       aes(x = time, y = incidence)) +
   geom_line(linewidth = 1) +
   scale_y_log10() +
   labs(title = "Early incidence growth",
@@ -223,8 +232,7 @@ ggplot(param_grid, aes(x = R0, y = epidemic_size)) +
   labs(title = "Epidemic size vs R0",
        x = "R0 (= beta/gamma)", 
        y = "Epidemic size (out of N=100)",
-       color = "gamma") +
-  theme_minimal()
+       color = "gamma")
 
 # Plot 2: Deaths vs R0
 ggplot(param_grid, aes(x = R0, y = deaths)) +
@@ -232,8 +240,7 @@ ggplot(param_grid, aes(x = R0, y = deaths)) +
   labs(title = "Total deaths vs R0",
        x = "R0 (= beta/gamma)", 
        y = "Total deaths",
-       color = "gamma") +
-  theme_minimal()
+       color = "gamma") 
 
 
 # ============================================================================
@@ -277,8 +284,7 @@ ggplot(param_grid2, aes(x = alpha, y = deaths, color = factor(N))) +
   labs(title = "Total deaths vs alpha (CFR)",
        x = "alpha (Case Fatality Rate)",
        y = "Total deaths",
-       color = "Population (N)") +
-  theme_minimal()
+       color = "Population (N)")
 
 # Plot 3b: Total deaths vs N, colored by alpha
 ggplot(param_grid2, aes(x = N, y = deaths, color = factor(alpha))) +
@@ -287,6 +293,5 @@ ggplot(param_grid2, aes(x = N, y = deaths, color = factor(alpha))) +
   labs(title = "Total deaths vs Population Size (N)",
        x = "N (Population size)",
        y = "Total deaths",
-       color = "alpha (CFR)") +
-  theme_minimal()
+       color = "alpha (CFR)")
 
