@@ -1,9 +1,21 @@
 library(readr)
 library(tidyr)
 library(dplyr)
-## maybe base_size=18 for slides?
-library(ggplot2); theme_set(theme_minimal(base_size=14))
-pdf(width=10)
+library(ggplot2); 
+
+
+PLOT_MODE <- "report"  # "report" or "slides"
+
+BASE_SIZE <- switch(
+  PLOT_MODE,
+  report = 14,
+  slides = 18
+)
+
+theme_set(
+  theme_minimal(base_size = BASE_SIZE)
+)
+
 
 dta <- read_csv("../data/drc_sitrep.csv")
 
@@ -30,20 +42,10 @@ print(sim_plot+scale_y_log10())
 print(sim_plot+scale_y_log10() + dta_long |> filter(surveillanceType=="Confirmed"))
 
 dta_plot <- ggplot(dta_long, aes(x = date, y = count, 
-                                 color = surveillanceType, 
+                                color = surveillanceType, 
                                  linetype = eventType)) +
   geom_line(linewidth = 1.1, na.rm = TRUE) +
-  scale_color_manual(values = c("Suspect" = "#E68A00", "Confirmed" = "#2C5F8A")) +
-  labs(
-    title = "Suspected and Confirmed Ebola Cases and Deaths",
-    x = "Date", y = "Number of cases / deaths",
-    color = "Surveillance type", linetype = "Event type"
-  ) +
-  theme_minimal(base_size = 13) +
-  theme(
-    plot.title = element_text(face = "bold"),
-    legend.position = "bottom"
-  )
+  scale_color_manual(values = c("Suspect" = "#E68A00", "Confirmed" = "#2C5F8A"))
 
 print(dta_plot)
 print(dta_plot + scale_y_log10())
@@ -53,13 +55,7 @@ print(dta_plot + scale_y_log10())
 fig1 <- ggplot(dta_long, aes(x = date, y = count, color = eventType)) +
   geom_line(linewidth = 1.1, na.rm = TRUE) +
   scale_color_manual(values = c("Cases" = "#2C5F8A", "Deaths" = "#B23A48")) +
-  facet_wrap(~ surveillanceType, ncol = 1, scales = "free_y") +
-  labs(
-    title = "Ebola Cases and Deaths, by Surveillance Type",
-    x = "Date", y = "Count", color = "Event type"
-  ) +
-  theme_minimal(base_size = 13) +
-  theme(plot.title = element_text(face = "bold"), legend.position = "bottom")
+  facet_wrap(~ surveillanceType, ncol = 1, scales = "free_y")
 
 print(fig1)
 
@@ -67,12 +63,7 @@ print(fig1)
 fig2 <- ggplot(dta_long, aes(x = date, y = count, color = surveillanceType)) +
   geom_line(linewidth = 1.1, na.rm = TRUE) +
   scale_color_manual(values = c("Suspect" = "#E68A00", "Confirmed" = "#2C5F8A")) +
-  facet_wrap(~ eventType, ncol = 1, scales = "free_y") +
-  labs(
-    title = "Ebola Suspect vs Confirmed, by Event Type",
-    x = "Date", y = "Count", color = "Surveillance type"
-  ) +
-  theme_minimal(base_size = 13) +
-  theme(plot.title = element_text(face = "bold"), legend.position = "bottom")
+  facet_wrap(~ eventType, ncol = 1, scales = "free_y")
 
 print(fig2)
+
