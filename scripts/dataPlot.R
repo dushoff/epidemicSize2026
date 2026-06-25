@@ -17,12 +17,14 @@ dta_plot <- ggplot(dta, aes(x = date)) +
   geom_line(
     aes(y = suspect_cases, colour = "Suspect Cases"),
     linewidth = 1.1,
+    linetype = "dashed",
     na.rm = TRUE
   ) +
   
   # Suspect death
   geom_line(
     aes(y = suspect_death, colour = "Suspect Deaths"),
+    linetype = "dashed",
     linewidth = 1.1,
     na.rm = TRUE
   ) +
@@ -46,9 +48,9 @@ dta_plot <- ggplot(dta, aes(x = date)) +
   scale_colour_manual(
     values = c(
       "Suspect Cases" = "blue",
-      "Suspect Deaths" = "darkblue",
-      "Confirmed Cases" = "pink",
-      "Confirmed Deaths" = "red"
+      "Suspect Deaths" = "pink",
+      "Confirmed Cases" = "blue",
+      "Confirmed Deaths" = "pink"
     )
   ) +
   
