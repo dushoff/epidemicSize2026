@@ -23,6 +23,14 @@ data$day <- as.numeric(data$date - data$date[1])
 # ==== FIT NEGATIVE BINOMIAL GLM ====
 glm_fit <- glm.nb(confirmed_cases ~ day, data = data)
 
+## Should we try a polynomial fit? Ambitous (do it if you have time)
+## Something like ~ poly(day, 2)
+## Look at the curvature.
+## This is a phenomonological way of looking at change
+## Future work would be to link to a mechanism
+## WHAT are some mechanisms that could cause downward curvature?
+## Are we confident that the downward curvature is real?
+
 # Extract parameters
 small_r <- coef(glm_fit)[2]
 intercept <- coef(glm_fit)[1]
