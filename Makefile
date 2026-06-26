@@ -29,6 +29,9 @@ scripts/dataPlot.Rout: scripts/dataPlot.R
 scripts/Negative_Binomial_GLM_fit.Rout: scripts/Negative_Binomial_GLM_fit.R
 	$(rThere)
 
+scripts/Final_size.Rout: scripts/Final_size.R
+	$(rThere)
+
 Ignore += scripts/*.png
 
 ######################################################################

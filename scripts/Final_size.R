@@ -29,6 +29,8 @@ small_r <- coef(glm_fit)[2]
 intercept <- coef(glm_fit)[1]
 doubling <- log(2) / small_r 
 
+summary(glm_fit)
+
 # Get confidence intervals
 CI <- confint(glm_fit)
 r_CI <- CI[2, ]
@@ -42,6 +44,8 @@ SI_scenarios <- data.frame(
 SI_scenarios$R0 <- exp(small_r * SI_scenarios$SI)
 SI_scenarios$R0_lower <- exp(r_CI[1] * SI_scenarios$SI)
 SI_scenarios$R0_upper <- exp(r_CI[2] * SI_scenarios$SI)
+
+## Calculate our example value of beta gamma from formula using R0 and r
 
 print("===== GLM ANALYSIS =====")
 print(paste("Small r:", round(small_r, 4), "per day"))
@@ -419,3 +423,7 @@ print("===== MAIN FIGURES SAVED =====")
 print("06_MAIN_Observed_vs_SIRD_with_Final_Size.png - MAIN FIGURE: Observed vs SIRD simulation with final size formula (14x8)")
 print("07_Final_Size_Breakdown.png - Final size breakdown by compartment")
 print("08_Cumulative_Final_Size.png - Cumulative curve approaching final size")
+
+## In future, we can code like this to keep your scripts small and clear
+## But not today
+## saveRDS(glm_fit, final_size_data)
