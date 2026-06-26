@@ -21,12 +21,12 @@ library(dplyr)
 # Read observed data
 data <- read.csv("../data/drc_sitrep.csv")
 data$date <- as.Date(data$date)
-data$day <- as.numeric(data$date - data$date[1])
+data$day <- as.numeric(data$date - data$date[[1]])
 
 # Fit GLM
 glm_fit <- glm.nb(confirmed_cases ~ day, data = data)
-small_r <- coef(glm_fit)[2]
-intercept <- coef(glm_fit)[1]
+small_r <- coef(glm_fit)[[2]]
+intercept <- coef(glm_fit)[[1]]
 doubling <- log(2) / small_r 
 
 summary(glm_fit)
@@ -41,9 +41,11 @@ SI_scenarios <- data.frame(
   SI = c(13.2, 15.4, 17.5)
 )
 
-SI_scenarios$R0 <- exp(small_r * SI_scenarios$SI)
-SI_scenarios$R0_lower <- exp(r_CI[1] * SI_scenarios$SI)
-SI_scenarios$R0_upper <- exp(r_CI[2] * SI_scenarios$SI)
+## We are combining lower CI with lower SI estimate
+## ... and assuming kappa=0 (fixed generation interval)
+R0_main <- exp(small_r * SI_scenarios$SI[[2]])
+R0_lower <- exp(r_CI[[1]] * SI_scenarios$SI)
+R0_upper <- exp(r_CI[[2]] * SI_scenarios$SI)
 
 #======================================================================
 # CALCULATE BETA AND GAMMA FROM GLM DATA
@@ -55,10 +57,11 @@ SI_scenarios$R0_upper <- exp(r_CI[2] * SI_scenarios$SI)
 exp(intercept)
 
 R0 <- 1.928945  # example R0 value
+R0 <- R0_main
 r <- 0.093343   # example growth rate
 
 # Step 1: Calculate gamma
-gamma <- r / (R0 - 1)
+gamma <- small_r / (R0 - 1)
 
 # Step 2: Now calculate beta
 beta <- R0 * gamma
@@ -79,7 +82,7 @@ print("")
 
 print("===== GLM ANALYSIS =====")
 print(paste("Small r:", round(small_r, 4), "per day"))
-print(paste("95% CI: [", round(r_CI[1], 4), ", ", round(r_CI[2], 4), "]"))
+print(paste("95% CI: [", round(r_CI[[1]], 4), ", ", round(r_CI[[2]], 4), "]"))
 print(paste("Doubling time:", round(doubling, 2), "days"))
 print("")
 
@@ -87,14 +90,14 @@ print("===== R0 ESTIMATES FOR 3 SI SCENARIOS =====")
 for (i in 1:nrow(SI_scenarios)) {
   if (i == 2) {
     print(paste("*** PRIMARY ESTIMATE *** ", SI_scenarios$scenario[i], " SI (", SI_scenarios$SI[i], 
-                " days): R0 =", round(SI_scenarios$R0[i], 3),
-                " 95% CI: [", round(SI_scenarios$R0_lower[i], 3), 
-                ", ", round(SI_scenarios$R0_upper[i], 3), "]"))
+                " days): R0 =", round(R0_main[i], 3),
+                " 95% CI: [", round(R0_lower[i], 3), 
+                ", ", round(R0_upper[i], 3), "]"))
   } else {
     print(paste(SI_scenarios$scenario[i], " SI (", SI_scenarios$SI[i], 
-                " days): R0 =", round(SI_scenarios$R0[i], 3),
-                " 95% CI: [", round(SI_scenarios$R0_lower[i], 3), 
-                ", ", round(SI_scenarios$R0_upper[i], 3), "]"))
+                " days): R0 =", round(R0_main[i], 3),
+                " 95% CI: [", round(R0_lower[i], 3), 
+                ", ", round(R0_upper[i], 3), "]"))
   }
 }
 print("")
@@ -435,7 +438,7 @@ fig4 <- ggplot(SI_scenarios, aes(x = scenario, y = R0, color = scenario)) +
   geom_hline(yintercept = 1, color = "red", size = 1, linetype = "dotted") +
   scale_color_manual(values = c("Low (95% CI Lower)" = "#3498db", "Primary Estimate" = "#f39c12", "High (95% CI Upper)" = "#e74c3c"),
                      guide = "none") +
-  ylim(0, max(SI_scenarios$R0_upper) * 1.2) +
+  ylim(0, max(R0_upper) * 1.2) +
   labs(title = "R0 Sensitivity", x = "Scenario", y = "R0") +
   theme_minimal() + theme(plot.title = element_text(face = "bold", size = 10),
                           axis.text.x = element_text(size = 8))
