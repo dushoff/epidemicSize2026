@@ -82,6 +82,51 @@ print(beta_gamma)
 calculated_beta <- beta
 calculated_gamma <- gamma
 
+# Fit GLM model
+#glm_fit <- glm(confirmed_cases ~ day, data = data)
+
+ci <- confint(glm_fit)
+small_r_low <- ci[2, 1]
+small_r_high <- ci[2, 2]
+
+# Create data frame
+plot_data <- data.frame(
+  parameter = "Growth rate (r)",
+  estimate = small_r,
+  lower = small_r_low,
+  upper = small_r_high
+)
+
+# Create forest plot with value labels
+library(ggplot2)
+
+ggplot(plot_data, aes(x = estimate, y = parameter)) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
+  geom_point(size = 5, color = "darkblue") +
+  geom_errorbarh(aes(xmin = lower, xmax = upper), 
+                 height = 0.15, size = 1.2, color = "darkblue") +
+  geom_text(aes(x = estimate, label = paste0(round(estimate, 4))), 
+            vjust = -0.8, size = 4, fontface = "bold") +
+  geom_text(aes(x = lower, label = paste0(round(lower, 4))), 
+            vjust = -5.1, size = 3.5, color = "darkblue") +
+  geom_text(aes(x = upper, label = paste0(round(upper, 4))), 
+            vjust = -5.1, size = 3.5, color = "darkblue") +
+  xlim(0.05, NA) +  # ADD THIS LINE - starts at 0.05, NA lets it auto-adjust max
+  labs(
+    title = "Growth Rate (r) with 95% Confidence Interval",
+    x = "Growth Rate (r)",
+    y = ""
+  ) +
+  theme_minimal() 
+
+# Print values to console as well
+cat("Growth Rate (r) Summary:\n")
+cat("Low (95% CI):  ", round(small_r_low, 4), "\n")
+cat("Mid (Estimate):", round(small_r, 4), "\n")
+cat("High (95% CI): ", round(small_r_high, 4), "\n")
+
+
+
 print("===== CALCULATED BETA AND GAMMA FROM GLM DATA =====")
 print(paste("Beta (transmission rate):", round(calculated_beta, 4)))
 print(paste("Gamma (recovery rate):", round(calculated_gamma, 4)))
