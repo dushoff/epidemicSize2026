@@ -45,7 +45,37 @@ SI_scenarios$R0 <- exp(small_r * SI_scenarios$SI)
 SI_scenarios$R0_lower <- exp(r_CI[1] * SI_scenarios$SI)
 SI_scenarios$R0_upper <- exp(r_CI[2] * SI_scenarios$SI)
 
+#======================================================================
+# CALCULATE BETA AND GAMMA FROM GLM DATA
+#======================================================================
+
 ## Calculate our example value of beta gamma from formula using R0 and r
+# Common scenario: r = β - γ
+
+exp(intercept)
+
+R0 <- 1.928945  # example R0 value
+r <- 0.093343   # example growth rate
+
+# Step 1: Calculate gamma
+gamma <- r / (R0 - 1)
+
+# Step 2: Now calculate beta
+beta <- R0 * gamma
+
+# Step 3: Calculate beta*gamma (the transmission-recovery rate product)
+beta_gamma <- beta * gamma
+print(beta_gamma)
+
+# Store these for use in SIRD simulation
+calculated_beta <- beta
+calculated_gamma <- gamma
+
+print("===== CALCULATED BETA AND GAMMA FROM GLM DATA =====")
+print(paste("Beta (transmission rate):", round(calculated_beta, 4)))
+print(paste("Gamma (recovery rate):", round(calculated_gamma, 4)))
+print(paste("Beta*Gamma (product):", round(beta_gamma, 6)))
+print("")
 
 print("===== GLM ANALYSIS =====")
 print(paste("Small r:", round(small_r, 4), "per day"))
@@ -70,7 +100,7 @@ for (i in 1:nrow(SI_scenarios)) {
 print("")
 
 #======================================================================
-# PART 2: SIRD SIMULATION (from your simulation code)
+# PART 2: SIRD SIMULATION (using calculated beta and gamma)
 #======================================================================
 
 PLOT_MODE <- "report"
@@ -93,12 +123,15 @@ sird_model <- function(time, state, parameters) {
   })
 }
 
-# PARAMETERS - ADJUST THESE TO MATCH YOUR OBSERVED DATA
-# These are placeholder values - you may want to calibrate them
+# PARAMETERS - NOW USING CALCULATED VALUES FROM GLM DATA
+# (instead of placeholder values)
+
 N <- 1e4
 p_sym <- 0.6
-parameters <- c(beta = 0.3,
-                gamma = 0.2,
+
+# Use the beta and gamma calculated from GLM data
+parameters <- c(beta = calculated_beta,      # NOW USING CALCULATED VALUE
+                gamma = calculated_gamma,    # NOW USING CALCULATED VALUE
                 alpha = 0.05,
                 p_sym = 0.6,
                 N = N)
@@ -131,9 +164,10 @@ sird_cumulative <- sird_output %>%
   select(time, cumulative_infected) %>%
   rename(day = time, simulated_cases = cumulative_infected)
 
-print("===== SIRD SIMULATION PARAMETERS =====")
-print(paste("Beta (transmission):", parameters["beta"]))
-print(paste("Gamma (recovery):", parameters["gamma"]))
+print("===== SIRD SIMULATION PARAMETERS (from GLM-derived β and γ) =====")
+print(paste("Beta (transmission):", round(parameters["beta"], 4), " (from GLM data)"))
+print(paste("Gamma (recovery):", round(parameters["gamma"], 4), " (from GLM data)"))
+print(paste("Beta*Gamma (product):", round(calculated_beta * calculated_gamma, 6)))
 print(paste("Alpha (CFR):", parameters["alpha"]))
 print(paste("P_sym (proportion symptomatic):", parameters["p_sym"]))
 print(paste("N (population):", N))
@@ -141,14 +175,15 @@ print(paste("Initial infected:", I0))
 print("")
 
 #======================================================================
-# CALCULATE FINAL SIZE FROM THEORY
+# CALCULATE FINAL SIZE FROM THEORY (using calculated β and γ)
 #======================================================================
 
-# Calculate R0
+# Calculate R0 from calculated beta and gamma
 R0_theory <- parameters["beta"] / parameters["gamma"]
 
 print("===== THEORETICAL FINAL SIZE =====")
-print(paste("R0 = β/γ =", parameters["beta"], "/", parameters["gamma"], "=", round(R0_theory, 3)))
+print(paste("R0 = β/γ =", round(parameters["beta"], 4), "/", round(parameters["gamma"], 4), "=", round(R0_theory, 3)))
+print(paste("Note: β*γ =", round(beta_gamma, 6), " (product used in certain transmission models)"))
 print("")
 
 # Solve final size equation: Z = 1 - exp(-R0 * Z)
@@ -273,7 +308,7 @@ final_size_data$Compartment <- factor(final_size_data$Compartment,
                                                  "Deaths\n(D)"))
 
 # Color palette matching your SIRD model
-palette_final <- c("Never Infected" = "#3B8BD4",     # Blue - Susceptible
+palette_final <- c("Not Infected" = "#3B8BD4",     # Blue - Susceptible
                    "Currently Infected" = "#E85A30",  # Orange - Infected
                    "Recovered" = "#639922",            # Green - Recovered
                    "Deaths" = "#A32D2D")               # Red - Deaths
