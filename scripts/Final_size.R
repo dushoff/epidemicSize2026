@@ -43,9 +43,18 @@ SI_scenarios <- data.frame(
 
 ## We are combining lower CI with lower SI estimate
 ## ... and assuming kappa=0 (fixed generation interval)
-R0_main <- exp(small_r * SI_scenarios$SI[[2]])
-R0_lower <- exp(r_CI[[1]] * SI_scenarios$SI)
-R0_upper <- exp(r_CI[[2]] * SI_scenarios$SI)
+R_phen <- function(rho, kappa){
+	if (kappa==0) return(exp(rho))
+	return((1+kappa*rho)^(1/kappa))
+}
+
+print(r_CI)
+
+## Use kappa=1 when we are trying to match simulation
+kappa=1
+R0_main <- R_phen(small_r * SI_scenarios$SI[[2]], kappa)
+R0_lower <- R_phen(exp(r_CI[[1]] * SI_scenarios$SI[[1]]), kappa)
+R0_upper <- R_phen(exp(r_CI[[2]] * SI_scenarios$SI[[3]]), kappa)
 
 #======================================================================
 # CALCULATE BETA AND GAMMA FROM GLM DATA
@@ -56,9 +65,7 @@ R0_upper <- exp(r_CI[[2]] * SI_scenarios$SI)
 
 exp(intercept)
 
-R0 <- 1.928945  # example R0 value
 R0 <- R0_main
-r <- 0.093343   # example growth rate
 
 # Step 1: Calculate gamma
 gamma <- small_r / (R0 - 1)
@@ -66,6 +73,7 @@ gamma <- small_r / (R0 - 1)
 # Step 2: Now calculate beta
 beta <- R0 * gamma
 
+## FIXME: Get rid of beta_gamma without changing anything else
 # Step 3: Calculate beta*gamma (the transmission-recovery rate product)
 beta_gamma <- beta * gamma
 print(beta_gamma)
@@ -140,7 +148,7 @@ parameters <- c(beta = calculated_beta,      # NOW USING CALCULATED VALUE
                 N = N)
 
 # Initial conditions
-I0 <- 1e-4 * N
+I0 <- intercept
 I_s0 <- p_sym * I0
 I_a0 <- (1 - p_sym) * I0
 
