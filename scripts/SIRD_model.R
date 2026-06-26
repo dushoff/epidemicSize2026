@@ -126,7 +126,7 @@ ggplot(output |> filter(time <= 20, incidence > 0),
        aes(x = time, y = incidence)) +
   geom_line(linewidth = 1) +
   scale_y_log10() +
-  labs(title = "Early incidence growth",
+  labs(title = "Early incidence growth (log scale)",
        x = "Time (days)",
        y = "New infections per day")
 
